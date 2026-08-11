@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        button.delete {
+            background: #e74c3c;
+        }
+        
+        button.delete:hover {
+            background: #c0392b;
+        }
+        
+        button.update {
+            background: #f39c12;
+        }
+        
+        button.update:hover {
+            background: #e67e22;
+        }
+        
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .doctor-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+        
+        .doctor-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .doctor-card.inactive {
+            opacity: 0.6;
+            background: #f0f0f0;
+        }
+        
+        .doctor-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .doctor-card p {
+            margin: 8px 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .doctor-card .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .doctor-card .status.active {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .doctor-card .status.inactive {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .doctor-card .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .doctor-card button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            flex: 1;
+            min-width: 80px;
+        }
+        
+        .slots {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .slot {
+            flex: 1;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .slot strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .slot-time {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-style: italic;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Doctor Appointment System</h1>
+        
+        <!-- Add/Edit Doctor Section -->
+        <div class="section">
+            <h2>Add New Doctor</h2>
+            <div class="form-group">
+                <div class="form-item">
+                    <label for="doctorName">Doctor Name:</label>
+                    <input type="text" id="doctorName" placeholder="Enter doctor name">
+                </div>
+                <div class="form-item">
+                    <label for="specialization">Specialization:</label>
+                    <select id="specialization">
+                        <option value="">Select Specialization</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Orthopedics">Orthopedics</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                        <option value="General Practice">General Practice</option>
+                        <option value="ENT">ENT</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="experience">Experience (Years):</label>
+                    <input type="number" id="experience" placeholder="Enter experience" min="0">
+                </div>
+                <div class="form-item">
+                    <label for="availability">Availability:</label>
+                    <select id="availability">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="addDoctor()">Add Doctor</button>
+                <button onclick="clearForm()" style="background: #95a5a6;">Clear</button>
+            </div>
+        </div>
+        
+        <!-- Doctors List Section -->
+        <div class="section">
+            <h2>Available Doctors</h2>
+            <div id="doctorsList" class="doctors-grid">
+                <div class="empty-state">No doctors added yet. Add a doctor to get started!</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data structure
+        let doctors = [
+            {
+                id: 1,
+                name: "Dr. Rajesh Kumar",
+                specialization: "Cardiology",
+                experience: 12,
+                availability: "active"
+            },
+            {
+                id: 2,
+                name: "Dr. Priya Singh",
+                specialization: "Dermatology",
+                experience: 8,
+                availability: "active"
+            },
+            {
+                id: 3,
+                name: "Dr. Arjun Patel",
+                specialization: "Neurology",
+                experience: 15,
+                availability: "inactive"
+            },
+            {
+                id: 4,
+                name: "Dr. Meera Nair",
+                specialization: "Orthopedics",
+                experience: 10,
+                availability: "active"
+            }
+        ];
+        
+        let nextId = 5;
+        
+        // Time slots configuration
+        const timeSlots = {
+            morning: "10 AM - 2 PM",
+            evening: "4 PM - 9 PM"
+        };
+        
+        // Add Doctor - CREATE
+        function addDoctor() {
+            const name = document.getElementById("doctorName").value.trim();
+            const specialization = document.getElementById("specialization").value;
+            const experience = document.getElementById("experience").value;
+            const availability = document.getElementById("availability").value;
+            
+            if (!name || !specialization || !experience) {
+                alert("Please fill in all fields!");
+                return;
+            }
+            
+            const newDoctor = {
+                id: nextId++,
+                name: name,
+                specialization: specialization,
+                experience: parseInt(experience),
+                availability: availability
+            };
+            
+            doctors.push(newDoctor);
+            clearForm();
+            renderDoctors();
+        }
+        
+        // Read - Display all doctors
+        function renderDoctors() {
+            const doctorsList = document.getElementById("doctorsList");
+            
+            if (doctors.length === 0) {
+                doctorsList.innerHTML = '<div class="empty-state">No doctors added yet. Add a doctor to get started!</div>';
+                return;
+            }
+            
+            doctorsList.innerHTML = doctors.map(doctor => `
+                <div class="doctor-card ${doctor.availability === 'inactive' ? 'inactive' : ''}">
+                    <h3>${doctor.availability === 'inactive' ? '🚫 ' : '✓ '}${doctor.name}</h3>
+                    <p><strong>Specialization:</strong> ${doctor.specialization}</p>
+                    <p><strong>Experience:</strong> ${doctor.experience} years</p>
+                    <p><strong>Status:</strong> <span class="status ${doctor.availability}">${doctor.availability.toUpperCase()}</span></p>
+                    
+                    <div class="slots">
+                        <div class="slot">
+                            <strong>Morning</strong>
+                            <div class="slot-time">${timeSlots.morning}</div>
+                        </div>
+                        <div class="slot">
+                            <strong>Evening</strong>
+                            <div class="slot-time">${timeSlots.evening}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button class="update" onclick="editDoctor(${doctor.id})">Edit</button>
+                        <button class="delete" onclick="deleteDoctor(${doctor.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Update Doctor
+        function editDoctor(id) {
+            const doctor = doctors.find(d => d.id === id);
+            if (doctor) {
+                document.getElementById("doctorName").value = doctor.name;
+                document.getElementById("specialization").value = doctor.specialization;
+                document.getElementById("experience").value = doctor.experience;
+                document.getElementById("availability").value = doctor.availability;
+                
+                deleteDoctor(id);
+            }
+        }
+        
+        // Delete Doctor - DELETE
+        function deleteDoctor(id) {
+            if (confirm("Are you sure you want to delete this doctor?")) {
+                doctors = doctors.filter(d => d.id !== id);
+                renderDoctors();
+            }
+        }
+        
+        // Clear form
+        function clearForm() {
+            document.getElementById("doctorName").value = "";
+            document.getElementById("specialization").value = "";
+            document.getElementById("experience").value = "";
+            document.getElementById("availability").value = "active";
+        }
+        
+        // Initial render
+        renderDoctors();
+    </script>
+</body>
+</html>
