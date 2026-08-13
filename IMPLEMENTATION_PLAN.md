@@ -1,4 +1,4 @@
-# IMPLEMENTATION PLIA
+# IMPLEMENTATION PLAN
 
 This document is the reference implementation plan for future development tasks in this repo. It focuses on the current scope (frontend demo app) and the Jira backlog items in project CAP.
 
@@ -10,6 +10,7 @@ This document is the reference implementation plan for future development tasks 
 - Prevent XSS by avoiding unsanitized innerHTML.
 - Add persistence via localStorage.
 - Create a test plan and regression checklist.
+
 
 ## 2) Jira mapping
 
